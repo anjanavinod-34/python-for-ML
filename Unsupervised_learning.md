@@ -1,55 +1,137 @@
-# Unsupervised Learning in Technical Terms
-
-## Clustering Algorithms:
-- **Technical Aspect:** Clustering algorithms, such as K-Means, employ mathematical optimizations to minimize the variance within clusters and maximize differences between them.
-- **Implementation Detail:** Utilizing Euclidean distances or other proximity measures, these algorithms iteratively group data points into clusters until convergence.
-
-## Dimensionality Reduction Techniques:
-- **Technical Aspect:** Dimensionality reduction methods, like PCA, involve linear algebraic operations to transform high-dimensional data into a lower-dimensional space while preserving as much variance as possible.
-- **Implementation Detail:** Eigenvalue decomposition is often used to identify principal components, reducing computational complexity.
-
-## Association Rule Learning Approaches:
-- **Technical Aspect:** Association rule learning algorithms, e.g., Apriori, use frequent itemset mining to discover patterns in transactional data, establishing rules based on item co-occurrences.
-- **Implementation Detail:** Support, confidence, and lift metrics are calculated to determine the significance of discovered rules.
-
-## Generative Models:
-- **Technical Aspect:** Generative models, like GANs, involve neural networks with intricate architectures, including generator and discriminator networks, to learn complex data distributions.
-- **Implementation Detail:** Adversarial training involves a continuous interplay between the generator and discriminator networks to improve the generation of realistic samples.
-
-## Anomaly Detection Methods:
-- **Technical Aspect:** Anomaly detection techniques, such as Isolation Forests, leverage the isolation of anomalous instances by constructing random forests, enabling efficient detection.
-- **Implementation Detail:** The algorithm measures the isolation depth of instances, identifying anomalies with shorter average depths.
-
-# Challenges and Considerations in Technical Applications:
-
-1. **Label Absence in Training Data:**
-   - **Technical Challenge:** Evaluating model performance without labeled data requires the formulation of specialized metrics, such as silhouette score for clustering.
-
-2. **Algorithm Selection Criteria:**
-   - **Technical Consideration:** The choice of algorithms depends on data characteristics, computational resources, and the specific technical problem at hand.
-
-3. **Interpretability Issues:**
-   - **Technical Challenge:** Interpreting patterns in high-dimensional spaces involves techniques like feature importance analysis and dimensionality reduction visualization.
-
-4. **Scalability Concerns:**
-   - **Technical Consideration:** Ensuring scalability of algorithms is crucial for handling large-scale datasets; optimization strategies may include parallelization or distributed computing.
-
-# Future Technical Trends:
-
-1. **Integration of Deep Learning:**
-   - **Technical Advancement:** Deep unsupervised learning involves stacking multiple layers of neural networks to capture intricate hierarchical representations in data.
-
-2. **Explainability Enhancements:**
-   - **Technical Innovation:** Advancements in explainable AI focus on developing techniques to provide insights into the decision-making process of complex unsupervised models.
-
-3. **Domain-Specific Tailoring:**
-   - **Technical Strategy:** Customizing unsupervised learning models involves incorporating domain-specific knowledge and constraints, enhancing their relevance and efficiency in technical applications.
-
-
-```python
+## Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt 
 from sklearn.decomposition import PCA
 import pandas as pd
 import seaborn as sns
-```
+
+### Loading the test data
+# Loading the test data
+
+url = 'https://query.data.world/s/ksxft7lhmbxpihskwsngwhpuul6lye'
+col_names = ['target','F1R', 'F1S', 'F2R', 'F2S', 'F3R', 'F3S', 'F4R', 'F4S', 'F5R','F5S','F6R','F6S','F7R','F7S','F8R','F8S','F9R','F9S','F10R',
+    'F10S',  'F11R','F11S','F12R','F12S','F13R','F13S','F14R','F14S','F15R','F15S','F16R','F16S','F17R','F17S','F18R','F18S','F19R','F19S',   'F20R',
+    'F20S','F21R','F21S','F22R','F22S']
+spectf_df_test= pd.read_table(url,sep=',',names=col_names)
+
+spectf_df_test
+# Loading the Train data
+
+url = 'https://query.data.world/s/cuqtpuoewpxysusrt5z4igihjah4xo'
+col_names = ['target','F1R', 'F1S', 'F2R', 'F2S', 'F3R', 'F3S', 'F4R', 'F4S', 'F5R','F5S','F6R','F6S','F7R','F7S','F8R','F8S','F9R','F9S','F10R',
+    'F10S',  'F11R','F11S','F12R','F12S','F13R','F13S','F14R','F14S','F15R','F15S','F16R','F16S','F17R','F17S','F18R','F18S','F19R','F19S',   'F20R',
+    'F20S','F21R','F21S','F22R','F22S']
+spectf_df= pd.read_table(url,sep=',',names=col_names)
+
+spectf_df
+spectf_df.info()
+spectf_df.describe()
+# Checking whether the dataset is balanced or not  
+
+#### This code creates a count plot of the 'target' variable in the spectf_df dataset using seaborn.
+#Train Data balance check
+sns.countplot(x='target',data=spectf_df)
+# Test data balance check
+sns.countplot(x='target',data=spectf_df_test)
+corr_df=spectf_df.corr()
+plt.figure(figsize=(18,12))
+sns.heatmap(corr_df)
+
+# Split labels and features
+traget=spectf_df['target']
+spectf_df.drop('target', axis=1, inplace=True)
+spectf_df
+traget_test=spectf_df_test['target']
+spectf_df_test.drop('target', axis=1, inplace=True)
+spectf_df_test
+Steps of PCA
+1. Standarization
+from sklearn.preprocessing import StandardScaler
+scaler=StandardScaler()#instantiate
+ 
+# compute the mean and standard which will be used in the next command
+
+spect_df=scaler.fit_transform(spectf_df)# fit and transform can be applied together and I leave that for simple exercise
+# we can check the minimum and maximum of the scaled features which we expect to be 0 and 1
+
+spect_df_test=scaler.fit_transform(spectf_df_test)
+
+traget
+# Time taken to train
+
+import time
+from sklearn.linear_model import LogisticRegression
+logreg=LogisticRegression()
+start=time.time()
+
+
+logreg.fit(spect_df,traget)
+end=time.time()
+
+
+traintime=end-start
+print('training time for logisticreggression(logreg) is:  ',traintime)
+
+
+y_pred_class=logreg.predict(spect_df_test)
+from sklearn import metrics
+metrics.accuracy_score(y_pred_class,traget_test)
+spect_df
+# Apply PCA to logreg model
+from sklearn.decomposition import PCA
+
+pca=PCA()
+pca.fit(spect_df)
+spect_df
+# Min number of components we need
+pca.explained_variance_ratio_[:15].sum()
+pca.explained_variance_ratio_
+pca.explained_variance_ratio_[:15].sum()
+# 1st PC
+
+pca.explained_variance_ratio_[:2].sum()
+np.cumsum(pca.explained_variance_ratio_)
+# Relationship b/w PC and variance
+plt.plot(np.cumsum(pca.explained_variance_ratio_))
+plt.annotate('15', xy=(15,.90))
+
+spect_df
+x_pca=PCA(n_components=15)
+spect_df_pca=x_pca.fit_transform(spect_df)
+spect_df_pca_test=x_pca.fit_transform(spect_df_test)
+spect_df_pca
+pca_corr=pd.DataFrame(spect_df_pca).corr()
+plt.figure(figsize=(18,12))
+sns.heatmap(pca_corr,annot=True)
+cols=['F1R', 'F1S', 'F2R', 'F2S', 'F3R', 'F3S', 'F4R', 'F4S', 'F5R','F5S','F6R','F6S','F7R','F7S','F8R','F8S','F9R','F9S','F10R',
+    'F10S',  'F11R','F11S','F12R','F12S','F13R','F13S','F14R','F14S','F15R','F15S','F16R','F16S','F17R','F17S','F18R','F18S','F19R','F19S',   'F20R',
+    'F20S','F21R','F21S','F22R','F22S']
+
+
+pca_Df=pd.DataFrame(x_pca.components_, columns=cols)
+pca_Df
+
+plt.figure(figsize=(18,12))
+sns.heatmap(pca_Df,cmap='RdYlGn', annot=True)
+## Your task is to create the logreg model and put PCs as features and check the accuracy and how long it takes to train
+# Time taken to train
+
+import time
+from sklearn.linear_model import LogisticRegression
+logreg=LogisticRegression()
+start=time.time()
+
+
+logreg.fit(spect_df_pca,traget)
+end=time.time()
+
+
+traintime=end-start
+print('training time for logreg is:  ',traintime)
+
+y_pred_class1=logreg.predict(spect_df_pca_test)
+from sklearn import metrics
+metrics.accuracy_score(y_pred_class1,traget_test)
+
+
+
